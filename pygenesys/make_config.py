@@ -3,7 +3,8 @@ import os
 import glob
 
 curr_dir = os.path.dirname(__file__)
-default_template = curr_dir+'/config_template.txt'
+default_template = curr_dir + "/config_template.txt"
+
 
 def load_template(input_path, input_fname):
     """
@@ -18,17 +19,18 @@ def load_template(input_path, input_fname):
     -------
     output_template: jinja template object
     """
-    if (input_path) == 'default' and (input_fname == 'default'):
+    if (input_path) == "default" and (input_fname == "default"):
         input = default_template
     else:
         input = input_path + input_fname
-    with open(input, 'r') as default:
+    with open(input, "r") as default:
         output_template = jinja2.Template(default.read())
     return output_template
 
 
-def render_input(input_path, input_fname, variable_dict,
-                 output_path, output_fname):
+def render_input(
+    input_path, input_fname, variable_dict, output_path, output_fname
+):
     """
     Writes a config file to specified path. Returns nothing.
     Parameters:
@@ -46,13 +48,13 @@ def render_input(input_path, input_fname, variable_dict,
     """
     test_template = load_template(input_path, input_fname)
     config = test_template.render(variable_dict)
-    output = output_path + '/' + output_fname
-    with open(output, 'wb') as outfile:
+    output = output_path + "/" + output_fname
+    with open(output, "wb") as outfile:
         outfile.write(config.encode())
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # path = "./simulations/illinois/zero_nuclear_RE_sensitivity/"
     # print(path)
@@ -66,7 +68,7 @@ if __name__ == '__main__':
     #                         output_path=path,
     #                         output_fname=outfile)
 
-    with open(default_template, 'r') as file:
+    with open(default_template, "r") as file:
         lines = file.readlines()
 
     for l in lines:

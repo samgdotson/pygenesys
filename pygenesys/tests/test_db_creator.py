@@ -3,22 +3,21 @@ import os
 import numpy as np
 
 curr_dir = os.path.dirname(__file__)
-test_db = curr_dir + '/test_db.sqlite'
+test_db = curr_dir + "/test_db.sqlite"
 N_seasons = 4
 N_hours = 24
 start_year = 2020
 end_year = 2050
 N_years = 6
-seasons = [[f'S{i+1}'] for i in range(N_seasons)]
+seasons = [[f"S{i+1}"] for i in range(N_seasons)]
 periods = np.linspace(start_year, end_year, N_years)
 existing_years = np.array([1990, 1995])
-
 
 
 def test_establish_connection():
     conn = establish_connection(test_db)
 
-    assert(conn is not None)
+    assert conn is not None
 
     conn.close()
     os.remove(test_db)
@@ -35,8 +34,8 @@ def test_create_time_season():
     conn.close()
 
     # tests
-    assert(len(table_data) == N_seasons)
-    assert(func_seasons == seasons)
+    assert len(table_data) == N_seasons
+    assert func_seasons == seasons
 
     # clean up
     os.remove(test_db)
@@ -53,7 +52,7 @@ def test_create_time_period_labels():
 
     N_labels = 2
     # tests
-    assert(len(table_data) == N_labels)
+    assert len(table_data) == N_labels
 
     os.remove(test_db)
     return
@@ -68,7 +67,7 @@ def test_create_time_periods():
     conn.close()
 
     # tests
-    assert(len(table_data) - 1 == (len(periods) + len(existing_years)))
+    assert len(table_data) - 1 == (len(periods) + len(existing_years))
 
     os.remove(test_db)
     return

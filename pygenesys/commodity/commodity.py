@@ -16,12 +16,9 @@ class Commodity(object):
     Temoa model.
     """
 
-    def __init__(self,
-                 comm_name,
-                 units,
-                 comm_label='p',
-                 description='',
-                 ):
+    def __init__(
+        self, comm_name, units, comm_label="p", description="",
+    ):
         """
         This class contains information about a commodity used
         in a Temoa model.
@@ -50,14 +47,19 @@ class Commodity(object):
         return
 
     def __repr__(self):
-        return (f"(\"{self.comm_name}\"," +
-                f"\"{self.comm_label}\"," +
-                f"\"{self.description} in {self.units}\")")
+        return (
+            f'("{self.comm_name}",'
+            + f'"{self.comm_label}",'
+            + f'"{self.description} in {self.units}")'
+        )
 
     def _db_entry(self):
-        return (self.comm_name,
-                self.comm_label,
-                self.description + ", " + self.units)
+        return (
+            self.comm_name,
+            self.comm_label,
+            self.description + ", " + self.units,
+        )
+
 
 # ==============================================================================
 # ==============================================================================
@@ -71,12 +73,9 @@ class DemandCommodity(Commodity):
     This class holds data for a demand commodity in Temoa.
     """
 
-    def __init__(self,
-                 comm_name,
-                 units,
-                 comm_label='d',
-                 description='',
-                 ):
+    def __init__(
+        self, comm_name, units, comm_label="d", description="",
+    ):
         """
         This class contains data for a demand commodity used
         in a Temoa model.
@@ -100,24 +99,24 @@ class DemandCommodity(Commodity):
             The dictionary containing the commodity demand for a given
             region.
         """
-        super().__init__(comm_name,
-                         units,
-                         comm_label,
-                         description,)
+        super().__init__(
+            comm_name, units, comm_label, description,
+        )
         self.demand = {}
         self.distribution = {}
 
         return
 
-    def add_demand(self,
-                   region,
-                   init_demand,
-                   start_year,
-                   end_year,
-                   N_years,
-                   growth_rate=0.0,
-                   growth_method='linear',
-                   ):
+    def add_demand(
+        self,
+        region,
+        init_demand,
+        start_year,
+        end_year,
+        N_years,
+        growth_rate=0.0,
+        growth_method="linear",
+    ):
         """
         Updates the ``demand`` dictionary with a new region and demand.
 
@@ -141,31 +140,31 @@ class DemandCommodity(Commodity):
         """
 
         growth_calculator = choose_growth_method(growth_method)
-        demand_forecast = growth_calculator(init_demand,
-                                            start_year,
-                                            end_year,
-                                            N_years,
-                                            growth_rate)
+        demand_forecast = growth_calculator(
+            init_demand, start_year, end_year, N_years, growth_rate
+        )
 
         if region in self.demand:
-            print(f'Region {region} already in database. Overwriting.')
+            print(f"Region {region} already in database. Overwriting.")
             self.demand[region] = demand_forecast
         else:
             self.demand.update({region: demand_forecast})
 
         return
 
-    def set_distribution(self,
-                         region,
-                         data,
-                         n_seasons=4,
-                         n_hours=24,
-                         normalize=True,
-                         kind='demand',
-                         groupby='season',
-                         add_peak=False,
-                         add_weekend=False,
-                         how=None):
+    def set_distribution(
+        self,
+        region,
+        data,
+        n_seasons=4,
+        n_hours=24,
+        normalize=True,
+        kind="demand",
+        groupby="season",
+        add_peak=False,
+        add_weekend=False,
+        how=None,
+    ):
         """
         This function generates a distribution time series. The sum
         of this distribution must be equal to unity. If users
@@ -201,22 +200,24 @@ class DemandCommodity(Commodity):
             The aggregation method. Only for use with the `tsam` package.
         """
         if normalize:
-            distribution = aggregate(data,
-                                     n_seasons,
-                                     n_hours,
-                                     kind,
-                                     groupby,
-                                     add_peak,
-                                     add_weekend,
-                                     how
-                                     )
+            distribution = aggregate(
+                data,
+                n_seasons,
+                n_hours,
+                kind,
+                groupby,
+                add_peak,
+                add_weekend,
+                how,
+            )
         elif not normalize:
             distribution = data
-
 
         self.distribution[region] = distribution.flatten()
 
         return
+
+
 # ==============================================================================
 # ==============================================================================
 # Defines EmissionsCommodity
@@ -229,14 +230,15 @@ class EmissionsCommodity(Commodity):
     This class holds data for an emissions commodity in Temoa.
     """
 
-    def __init__(self,
-                 comm_name,
-                 units,
-                 limit=None,
-                 years=None,
-                 comm_label='e',
-                 description='',
-                 ):
+    def __init__(
+        self,
+        comm_name,
+        units,
+        limit=None,
+        years=None,
+        comm_label="e",
+        description="",
+    ):
         """
         This class contains data for an emissions commodity used
         in a Temoa model.
@@ -257,18 +259,17 @@ class EmissionsCommodity(Commodity):
         description : string
             A brief (1-4 words) description of the commodity.
         """
-        super().__init__(comm_name,
-                         units,
-                         comm_label,
-                         description,)
+        super().__init__(
+            comm_name, units, comm_label, description,
+        )
 
         self.emissions_limit = {}
 
         return
 
-    def add_regional_limit(self,
-                           region,
-                           limits,):
+    def add_regional_limit(
+        self, region, limits,
+    ):
         """
         This function adds an emissions limit for a particular year
         or set of years.
@@ -292,7 +293,7 @@ class EmissionsCommodity(Commodity):
         """
 
         if region in self.emissions_limit:
-            print(f'Region {region} already in database. Overwriting.')
+            print(f"Region {region} already in database. Overwriting.")
             self.emissions_limit[region] = limits
         else:
             self.emissions_limit.update({region: limits})
@@ -302,23 +303,21 @@ class EmissionsCommodity(Commodity):
 
 if __name__ == "__main__":
 
-    bacon = Commodity(comm_name='bacon',
-                      comm_label='food',
-                      units='strips')
+    bacon = Commodity(comm_name="bacon", comm_label="food", units="strips")
 
     print(bacon.comm_name)
     print(repr(bacon))
     print(bacon._db_entry())
 
-    pancakes = DemandCommodity(comm_name='pancakes',
-                               units='number',
-                               )
+    pancakes = DemandCommodity(comm_name="pancakes", units="number",)
     print(repr(pancakes))
     print(pancakes._db_entry())
 
-    ELC_DEMAND = DemandCommodity(comm_name='ELC_DEMAND',
-                                 units='GWh',
-                                 description='End-use electricity demand')
+    ELC_DEMAND = DemandCommodity(
+        comm_name="ELC_DEMAND",
+        units="GWh",
+        description="End-use electricity demand",
+    )
 
     print(repr(ELC_DEMAND))
     print(ELC_DEMAND._db_entry())

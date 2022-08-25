@@ -3,18 +3,20 @@ import numpy as np
 import os
 from datetime import date
 
-months = ['january',
-          'february',
-          'march',
-          'april',
-          'may',
-          'june',
-          'july',
-          'august',
-          'september',
-          'october',
-          'november',
-          'december']
+months = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+]
 
 
 def get_date():
@@ -23,7 +25,7 @@ def get_date():
     """
     today = date.today().strftime("%B %d, %Y")
 
-    today = today.split(' ')
+    today = today.split(" ")
 
     month = today[0]
     day = today[1]
@@ -53,21 +55,21 @@ def get_eia_generators(month=None, year=None):
         Holds the data from EIA form 860M
     """
     columns = [
-        'Entity ID',
-        'Entity Name',
-        'Plant Name',
-        'Sector',
-        'Plant State',
-        'Nameplate Capacity (MW)',
-        'Technology',
-        'Operating Year',
-        'Status',
-        'Balancing Authority Code',
-        'County'
+        "Entity ID",
+        "Entity Name",
+        "Plant Name",
+        "Sector",
+        "Plant State",
+        "Nameplate Capacity (MW)",
+        "Technology",
+        "Operating Year",
+        "Status",
+        "Balancing Authority Code",
+        "County",
     ]
 
-    # initialize 
-    m = 'thermidor'
+    # initialize
+    m = "thermidor"
     y = 2
 
     if (month is None) and (year is None):
@@ -83,37 +85,44 @@ def get_eia_generators(month=None, year=None):
         m = month
         y = year
 
-    elif ((month is None) or (year is None)):
-        
+    elif (month is None) or (year is None):
+
         print(f"Month {month} / Year {year}")
         raise ValueError(("Please specify a month and a year."))
 
-
-    url = (f"https://www.eia.gov/electricity/data/eia860m/archive/xls/" +
-           f"{m}_generator{y}.xlsx")
+    url = (
+        f"https://www.eia.gov/electricity/data/eia860m/archive/xls/"
+        + f"{m}_generator{y}.xlsx"
+    )
 
     try:
-        print(f'Downloading from {url}\n')
-        df = pd.read_excel(url,
-                           sheet_name='Operating',
-                           skipfooter=2,
-                           skiprows=2,
-                           usecols=columns,
-                           index_col='Entity ID')
-        print('Download successful.')
+        print(f"Downloading from {url}\n")
+        df = pd.read_excel(
+            url,
+            sheet_name="Operating",
+            skipfooter=2,
+            skiprows=2,
+            usecols=columns,
+            index_col="Entity ID",
+        )
+        print("Download successful.")
     except BaseException:
-        print('Download failed. Trying different sheet format.')
+        print("Download failed. Trying different sheet format.")
         try:
-            df = pd.read_excel(url,
-                               sheet_name='Operating',
-                               skipfooter=2,
-                               skiprows=1,
-                               usecols=columns,
-                               index_col='Entity ID')
-            print('Download successful.')
+            df = pd.read_excel(
+                url,
+                sheet_name="Operating",
+                skipfooter=2,
+                skiprows=1,
+                usecols=columns,
+                index_col="Entity ID",
+            )
+            print("Download successful.")
         except ValueError:
-            fail_str = (f'Download failed. File not found' +
-                       f' for Month: {month} and Year: {year}')
+            fail_str = (
+                f"Download failed. File not found"
+                + f" for Month: {month} and Year: {year}"
+            )
             raise ValueError(fail_str)
 
     return df
@@ -150,20 +159,20 @@ def get_existing_capacity(df, region, technology):
     """
 
     # verify the technology string is well formed
-    technology = technology.split(' ')
+    technology = technology.split(" ")
     technology = [i.capitalize() for i in technology]
-    technology = ' '.join(technology)
+    technology = " ".join(technology)
 
     # filter by region
     if len(region) == 2:
-        region_mask = df['Plant State'] == region.upper()
+        region_mask = df["Plant State"] == region.upper()
     else:
-        region_mask = df['County'] == region.upper()
+        region_mask = df["County"] == region.upper()
 
     df = df[region_mask]
 
     # filter by technology
-    tech_mask = df['Technology'] == technology
+    tech_mask = df["Technology"] == technology
     try:
         tech_df = df[tech_mask]
     except BaseException:
@@ -171,13 +180,13 @@ def get_existing_capacity(df, region, technology):
         return {}
     # columns = ['Nameplate Capactiy (MW)', 'Operating Year', 'Technology', '']
     # breakpoint()
-    sorted_tech_df = tech_df.sort_values(by=['Operating Year'])
-    sorted_tech_df.set_index('Operating Year', inplace=True)
-    sorted_tech_df.index = pd.to_datetime(sorted_tech_df.index, format='%Y')
-    sorted_tech_df = sorted_tech_df.resample('Y').sum()
+    sorted_tech_df = tech_df.sort_values(by=["Operating Year"])
+    sorted_tech_df.set_index("Operating Year", inplace=True)
+    sorted_tech_df.index = pd.to_datetime(sorted_tech_df.index, format="%Y")
+    sorted_tech_df = sorted_tech_df.resample("Y").sum()
 
-    existing_years = np.array(sorted_tech_df.index.year).astype('int')
-    existing_cap = np.array(sorted_tech_df['Nameplate Capacity (MW)'])
+    existing_years = np.array(sorted_tech_df.index.year).astype("int")
+    existing_cap = np.array(sorted_tech_df["Nameplate Capacity (MW)"])
 
     existing_capacity = {}
     years = []
@@ -190,8 +199,7 @@ def get_existing_capacity(df, region, technology):
     return dict(zip(years, caps))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     eia_data = get_eia_generators()
-    my_dict = get_existing_capacity(
-        eia_data, region='IL', technology='Nuclear')
+    my_dict = get_existing_capacity(eia_data, region="IL", technology="Nuclear")
     print(my_dict)

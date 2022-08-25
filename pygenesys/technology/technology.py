@@ -1,10 +1,10 @@
-
 # =============================================================================
 # =============================================================================
 # Defines Technology
 # =============================================================================
 # =============================================================================
 import numpy as np
+
 
 class Technology(object):
     """
@@ -14,20 +14,21 @@ class Technology(object):
     might transform a uranium commodity into heat or electricity.
     """
 
-    def __init__(self,
-                 tech_name,
-                 units,
-                 capacity_to_activity,
-                 tech_sector='energy',
-                 tech_label='p',
-                 description='',
-                 category='',
-                 reserve_tech=False,
-                 ramping_tech=False,
-                 storage_tech=False,
-                 curtailed_tech=False,
-                 exchange_tech=False,
-                 ):
+    def __init__(
+        self,
+        tech_name,
+        units,
+        capacity_to_activity,
+        tech_sector="energy",
+        tech_label="p",
+        description="",
+        category="",
+        reserve_tech=False,
+        ramping_tech=False,
+        storage_tech=False,
+        curtailed_tech=False,
+        exchange_tech=False,
+    ):
         """
         This class contains information about a technology used
         in a Temoa model.
@@ -76,7 +77,7 @@ class Technology(object):
             Indicates if the technology has a ramp rate. Only valid for
             non-intermittent technologies.
         """
-        self._type = 'Technology'
+        self._type = "Technology"
         self.tech_name = tech_name
         self.tech_sector = tech_sector
         self.tech_label = tech_label
@@ -110,21 +111,23 @@ class Technology(object):
         return
 
     def __repr__(self):
-        return (f"{self._type}" +
-                f"(\"{self.tech_name}\"," +
-                f"\"{self.tech_label}\"," +
-                f"\"{self.units}\")")
+        return (
+            f"{self._type}"
+            + f'("{self.tech_name}",'
+            + f'"{self.tech_label}",'
+            + f'"{self.units}")'
+        )
 
     def _db_entry(self):
-        return (self.tech_name,
-                self.tech_label,
-                self.tech_sector,
-                self.description + ", " + self.units,
-                self.category)
+        return (
+            self.tech_name,
+            self.tech_label,
+            self.tech_sector,
+            self.description + ", " + self.units,
+            self.category,
+        )
 
-    def add_regional_data(self,
-                          region,
-                          **kwargs):
+    def add_regional_data(self, region, **kwargs):
         """
         This function adds regional data for each parameter.
         Non-required items are kwargs.
@@ -147,8 +150,8 @@ class Technology(object):
             "ramp_down": self.ramp_down,
             "storage_duration": self.storage_duration,
             "emissions": self.emissions,
-            "max_capacity":self.max_capacity,
-            "min_capacity":self.min_capacity,
+            "max_capacity": self.max_capacity,
+            "min_capacity": self.min_capacity,
         }
 
         # check if region is a list or a string
@@ -177,5 +180,5 @@ class Technology(object):
         return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass

@@ -68,8 +68,12 @@ def collect_technologies(module_name):
     """
     try:
         technologies = module_name.tech_list
-        print(("Warning: Importing from technology list -- duplicate technologies\n"
-               " may result in compilation errors."))
+        print(
+            (
+                "Warning: Importing from technology list -- duplicate technologies\n"
+                " may result in compilation errors."
+            )
+        )
     except:
         technologies = []
 
@@ -78,7 +82,7 @@ def collect_technologies(module_name):
         try:
             string_attr = str(attrib)
         except BaseException:
-            string_attr = ''
+            string_attr = ""
 
         # if 'Technology' in string_attr:
         if isinstance(attrib, Technology):
@@ -113,11 +117,11 @@ def _collect_commodities(technology_list):
 
     for tech in technology_list:
         for region in tech.regions:
-            print(f'REGION: {region}')
+            print(f"REGION: {region}")
             input_comm = tech.input_comm[region]
             output_comm = tech.output_comm[region]
 
-            print(f'Commodity types for {tech.tech_name}')
+            print(f"Commodity types for {tech.tech_name}")
             print(f"{type(input_comm)}")
             print(f"{type(output_comm)}")
             # check the input commodity type
@@ -130,14 +134,17 @@ def _collect_commodities(technology_list):
                     continue
             elif isinstance(input_comm, list):
                 for comm in input_comm:
-                    if (isinstance(comm, Commodity)) and \
-                       (comm.comm_name not in resource):
+                    if (isinstance(comm, Commodity)) and (
+                        comm.comm_name not in resource
+                    ):
                         resource[comm.comm_name] = comm
                     else:
                         continue
             else:
-                print(f'Input commodity for {tech.tech_name} in {region} '
-                      'is not a resource. Check input file.')
+                print(
+                    f"Input commodity for {tech.tech_name} in {region} "
+                    "is not a resource. Check input file."
+                )
 
             if isinstance(output_comm, DemandCommodity):
                 # demand
@@ -152,8 +159,10 @@ def _collect_commodities(technology_list):
 
             elif isinstance(output_comm, EmissionsCommodity):
                 # emission
-                print(f"Warning: Output commodity of {tech.tech_name}"
-                      f"is an Emission Commodity. Check input file.")
+                print(
+                    f"Warning: Output commodity of {tech.tech_name}"
+                    f"is an Emission Commodity. Check input file."
+                )
                 continue
             try:
                 emissions = tech.emissions[region]
@@ -161,8 +170,9 @@ def _collect_commodities(technology_list):
 
                 # loop through emissions commodities
                 for emis in list(emissions.keys()):
-                    if (isinstance(emis, EmissionsCommodity)) and \
-                       (emis.comm_name not in emission_dict):
+                    if (isinstance(emis, EmissionsCommodity)) and (
+                        emis.comm_name not in emission_dict
+                    ):
                         emission_dict[emis.comm_name] = emis
                     else:
                         continue
@@ -174,9 +184,11 @@ def _collect_commodities(technology_list):
     emissions_list = list(emission_dict.values())
 
     if len(demands) == 0:
-        print('Warning: Input file has no technologies that satisfy demands.')
-        print('No demands written to database. Consider adding a transmission'
-              'technology.')
+        print("Warning: Input file has no technologies that satisfy demands.")
+        print(
+            "No demands written to database. Consider adding a transmission"
+            "technology."
+        )
 
     return resources, demands, emissions_list
 
@@ -184,8 +196,8 @@ def _collect_commodities(technology_list):
 def main():
 
     # Read commandline arguments
-    parser = argparse.ArgumentParser(description='PyGenesys Parameters')
-    parser.add_argument('--infile', help='the name of the input file')
+    parser = argparse.ArgumentParser(description="PyGenesys Parameters")
+    parser.add_argument("--infile", help="the name of the input file")
     args = parser.parse_args()
     print(f"Reading input from {args.infile} \n")
 
@@ -200,22 +212,22 @@ def main():
     technology_list = collect_technologies(infile)
 
     # create the model object
-    model = model_info.ModelInfo(output_db=out_path,
-                                 scenario_name=infile.scenario_name,
-                                 start_year=infile.start_year,
-                                 end_year=infile.end_year,
-                                 N_years=infile.N_years,
-                                 N_seasons=infile.N_seasons,
-                                 N_hours=infile.N_hours,
-                                 demands=infile.demands_list,
-                                 resources=infile.resources_list,
-                                 emissions=infile.emissions_list,
-                                 technologies=technology_list,
-                                 reserve_margin=infile.reserve_margin,
-                                 global_discount=infile.discount_rate
-                                 )
+    model = model_info.ModelInfo(
+        output_db=out_path,
+        scenario_name=infile.scenario_name,
+        start_year=infile.start_year,
+        end_year=infile.end_year,
+        N_years=infile.N_years,
+        N_seasons=infile.N_seasons,
+        N_hours=infile.N_hours,
+        demands=infile.demands_list,
+        resources=infile.resources_list,
+        emissions=infile.emissions_list,
+        technologies=technology_list,
+        reserve_margin=infile.reserve_margin,
+        global_discount=infile.discount_rate,
+    )
     print(f"Database will be exported to {model.output_db} \n")
-
 
     model._write_sqlite_database()
 
@@ -224,22 +236,26 @@ def main():
     # create the config file
     print("Writing Temoa config file.\n")
 
-    config_template = 'config_template.txt'
+    config_template = "config_template.txt"
     fname = name_from_path(out_db)
-    print(f'File name: {fname}\n')
-    conf_name = f'run_{fname}.txt'
-    vars = {'target_dir':infile.folder,
-            'file_name':fname+'.sqlite',
-            'scenario':infile.scenario_name}
+    print(f"File name: {fname}\n")
+    conf_name = f"run_{fname}.txt"
+    vars = {
+        "target_dir": infile.folder,
+        "file_name": fname + ".sqlite",
+        "scenario": infile.scenario_name,
+    }
 
     # outpath should be one folder up.
     path = infile.curr_dir
-    print(f'{infile.curr_dir}\n')
-    print(f'{path}\n')
-    rendered = render_input(input_path='default',
-                            input_fname='default',
-                            variable_dict=vars,
-                            output_path=path,
-                            output_fname=conf_name)
+    print(f"{infile.curr_dir}\n")
+    print(f"{path}\n")
+    rendered = render_input(
+        input_path="default",
+        input_fname="default",
+        variable_dict=vars,
+        output_path=path,
+        output_fname=conf_name,
+    )
 
     return

@@ -16,6 +16,7 @@ from pygenesys.data.library import my_data
 """
 
 import os
+
 curr_dir = os.path.dirname(__file__)
 
 
@@ -112,13 +113,18 @@ if __name__ == "__main__":
     import pandas as pd
     import numpy as np
 
-    df = pd.read_csv(nrel_electric_costs, usecols=['atb_year',
-                                                   'core_metric_parameter',
-                                                   'technology',
-                                                   'techdetail',
-                                                   'scenario',
-                                                   'core_metric_variable',
-                                                   'value',
-                                                   'units'])
-    df = df[df['core_metric_parameter'] == 'Fuel']
+    df = pd.read_csv(
+        nrel_electric_costs,
+        usecols=[
+            "atb_year",
+            "core_metric_parameter",
+            "technology",
+            "techdetail",
+            "scenario",
+            "core_metric_variable",
+            "value",
+            "units",
+        ],
+    )
+    df = df[df["core_metric_parameter"] == "Fuel"]
     print(df.head())

@@ -9,20 +9,22 @@ class ModelInfo(object):
     Temoa model.
     """
 
-    def __init__(self,
-                 output_db,
-                 scenario_name,
-                 start_year,
-                 end_year,
-                 N_years,
-                 N_seasons,
-                 N_hours,
-                 technologies,
-                 demands,
-                 resources,
-                 emissions,
-                 reserve_margin,
-                 global_discount):
+    def __init__(
+        self,
+        output_db,
+        scenario_name,
+        start_year,
+        end_year,
+        N_years,
+        N_seasons,
+        N_hours,
+        technologies,
+        demands,
+        resources,
+        emissions,
+        reserve_margin,
+        global_discount,
+    ):
         """
         Initalize the ModelInfo object
 
@@ -72,9 +74,9 @@ class ModelInfo(object):
         self.N_seasons = N_seasons
         self.N_hours = N_hours
         self.commodities = {
-            'demand': demands,
-            'resources': resources,
-            'emissions': emissions
+            "demand": demands,
+            "resources": resources,
+            "emissions": emissions,
         }
         self.technologies = technologies
         self.reserve_margin = reserve_margin
@@ -96,9 +98,9 @@ class ModelInfo(object):
         database.
         """
 
-        years = np.linspace(self.start_year,
-                            self.end_year,
-                            self.N_years).astype('int')
+        years = np.linspace(
+            self.start_year, self.end_year, self.N_years
+        ).astype("int")
 
         return years
 
@@ -119,7 +121,7 @@ class ModelInfo(object):
         Collects the unique list of regions in the simulation.
         """
         regions = []
-        for demand_comm in self.commodities['demand']:
+        for demand_comm in self.commodities["demand"]:
             comm_regions = list(demand_comm.demand.keys())
             for r in comm_regions:
                 regions.append(r)
@@ -168,16 +170,13 @@ class ModelInfo(object):
         create_regions(conn, self.regions)
         create_commodity_labels(conn)
         create_commodities(conn, self.commodities)
-        create_emissions_limit(conn, self.commodities['emissions'])
+        create_emissions_limit(conn, self.commodities["emissions"])
         create_global_discount(conn, self.global_discount)
         create_reserve_margin(conn, self.reserve_margin)
-        create_demand_table(conn,
-                            self.commodities['demand'],
-                            self.time_horizon)
-        create_demand_specific_distribution(conn,
-                                            self.commodities['demand'],
-                                            time_slices,
-                                            seasons)
+        create_demand_table(conn, self.commodities["demand"], self.time_horizon)
+        create_demand_specific_distribution(
+            conn, self.commodities["demand"], time_slices, seasons
+        )
         create_technology_labels(conn)
         create_sectors(conn, self.tech_sectors)
         create_technologies(conn, self.technologies)
@@ -198,10 +197,9 @@ class ModelInfo(object):
         create_invest_cost(conn, self.technologies, self.time_horizon)
         create_variable_cost(conn, self.technologies, self.time_horizon)
         create_fixed_cost(conn, self.technologies, self.time_horizon)
-        create_capacity_factor_tech(conn,
-                                    self.technologies,
-                                    time_slices,
-                                    seasons)
+        create_capacity_factor_tech(
+            conn, self.technologies, time_slices, seasons
+        )
         create_MyopicBaseYear(conn)
         create_lifetime_process(conn)
 

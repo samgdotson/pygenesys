@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def choose_growth_method(method_name='linear'):
+def choose_growth_method(method_name="linear"):
     """
     This function returns a function that calculates the growth of
     some quantity.
@@ -13,10 +13,7 @@ def choose_growth_method(method_name='linear'):
         TODO: add logistic.
     """
 
-    method = {
-        'linear': linear_growth,
-        'exponential': exponential_growth
-    }
+    method = {"linear": linear_growth, "exponential": exponential_growth}
 
     return method[method_name]
 
@@ -47,9 +44,10 @@ def linear_growth(init_value, start_year, end_year, N_years, growth_rate):
         An array of the value for each year in a simulation.
     """
 
-    def model(x, init_val, start, rate): return rate * \
-        init_val * (x - start) + init_val
-    years = np.linspace(start_year, end_year, N_years).astype('int')
+    def model(x, init_val, start, rate):
+        return rate * init_val * (x - start) + init_val
+
+    years = np.linspace(start_year, end_year, N_years).astype("int")
     growth_data = model(years, init_value, start_year, growth_rate)
 
     return growth_data
@@ -81,23 +79,21 @@ def exponential_growth(init_value, start_year, end_year, N_years, growth_rate):
         An array of the value for each year in a simulation.
     """
 
-    def model(x, init_val, start, rate): return init_val * \
-        np.exp(rate * (x - start))
-    years = np.linspace(start_year, end_year, N_years).astype('int')
+    def model(x, init_val, start, rate):
+        return init_val * np.exp(rate * (x - start))
+
+    years = np.linspace(start_year, end_year, N_years).astype("int")
     growth_data = model(years, init_value, start_year, growth_rate)
 
     return growth_data
+
 
 # TODO finish implementing logistic growth
 
 
 def logistic_growth(
-        init_value,
-        start_year,
-        end_year,
-        N_years,
-        growth_rate,
-        cap):
+    init_value, start_year, end_year, N_years, growth_rate, cap
+):
     """
     This function returns a numpy array representing the growth
     of a quantity in each given year. Use this function if the growth
@@ -128,7 +124,7 @@ def logistic_growth(
     """
 
     # model = lambda x, init_val, start, rate: init_val*np.exp(rate*(x-start))
-    years = np.linspace(start_year, end_year, N_years).astype('int')
+    years = np.linspace(start_year, end_year, N_years).astype("int")
     growth_data = model(years, init_value, start_year, growth_rate)
 
     return growth_data

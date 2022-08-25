@@ -3,14 +3,16 @@ import pandas as pd
 import numpy as np
 
 
-renewable_techs = ['LandbasedWind',
-                   'OffshoreWind',
-                   'UtilityPV',
-                   'ResPV',
-                   'CommPV',
-                   'Geothermal',
-                   'Hydropower',
-                   'CSP',]
+renewable_techs = [
+    "LandbasedWind",
+    "OffshoreWind",
+    "UtilityPV",
+    "ResPV",
+    "CommPV",
+    "Geothermal",
+    "Hydropower",
+    "CSP",
+]
 
 
 def read_atb_data(atb_year=2021):
@@ -25,23 +27,27 @@ def read_atb_data(atb_year=2021):
         Indicates the ATB version. Default is 2021.
     """
 
-    df = pd.read_csv(nrel_electric_costs,
-                     usecols=['atb_year',
-                              'core_metric_parameter',
-                              'core_metric_case',
-                              'technology',
-                              'techdetail',
-                              'scenario',
-                              'core_metric_variable',
-                              'value'],)
+    df = pd.read_csv(
+        nrel_electric_costs,
+        usecols=[
+            "atb_year",
+            "core_metric_parameter",
+            "core_metric_case",
+            "technology",
+            "techdetail",
+            "scenario",
+            "core_metric_variable",
+            "value",
+        ],
+    )
 
     df.dropna(axis=1, inplace=True)
-    df.rename(columns={'core_metric_variable':'year'}, inplace=True)
-    df.set_index('year', inplace=True)
+    df.rename(columns={"core_metric_variable": "year"}, inplace=True)
+    df.set_index("year", inplace=True)
 
-    df = df[df['atb_year']==atb_year]
+    df = df[df["atb_year"] == atb_year]
 
-    df = df.drop('atb_year', axis=1)
+    df = df.drop("atb_year", axis=1)
 
     return df
 
@@ -63,7 +69,7 @@ def return_nrel_scenario(df, scenario):
         * Moderate
     """
 
-    df = df[df['scenario'] == scenario]
+    df = df[df["scenario"] == scenario]
 
     return df
 
@@ -74,14 +80,14 @@ def get_nrel_techs(df):
     the NREL ATB.
     """
 
-    tech_list = np.unique(df['technology'])
+    tech_list = np.unique(df["technology"])
 
     return tech_list
 
-def nrel_cost_projection(tech,
-                         cost_metric,
-                         tech_detail=None,
-                         scenario='Moderate',):
+
+def nrel_cost_projection(
+    tech, cost_metric, tech_detail=None, scenario="Moderate",
+):
     """
     Returns cost projections from the NREL Annual
     Technology Baseline.
@@ -115,10 +121,10 @@ def nrel_cost_projection(tech,
 if __name__ == "__main__":
 
     df = read_atb_data()
-    scenario = 'Conservative'
+    scenario = "Conservative"
     df = return_nrel_scenario(df, scenario)
-    df = df[df['technology'] == 'Nuclear']
-    param = 'CAPEX'
+    df = df[df["technology"] == "Nuclear"]
+    param = "CAPEX"
     # param = 'Fixed O&M'
     # param = 'Variable O&M'
     # df = df[df['core_metric_parameter']==param]

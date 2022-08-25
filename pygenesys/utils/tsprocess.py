@@ -10,19 +10,21 @@ def timeseries_preprocess(ts):
     """
 
     time_series = ts.copy()
-    time_series = time_series.resample('H').mean()
-    time_series.interpolate('linear', inplace=True)
+    time_series = time_series.resample("H").mean()
+    time_series.interpolate("linear", inplace=True)
 
     start = time_series.index.date[0]
     end = time_series.tail(1).index[0]
 
     idx_name = time_series.index.name
 
-    indx_df = pd.DataFrame({idx_name: pd.date_range(start, end, freq='H')})
+    indx_df = pd.DataFrame({idx_name: pd.date_range(start, end, freq="H")})
     indx_df.set_index(idx_name, inplace=True)
-    time_series = pd.concat([indx_df,
-                             time_series],
-                            axis=1).interpolate('linear').backfill()
+    time_series = (
+        pd.concat([indx_df, time_series], axis=1)
+        .interpolate("linear")
+        .backfill()
+    )
 
     return time_series
 
@@ -57,8 +59,11 @@ def get_peak_day(dataframe):
     """
 
     time_series = dataframe.copy()
-    idx = time_series.where(
-        time_series == time_series.max()).dropna().index.date[0]
+    idx = (
+        time_series.where(time_series == time_series.max())
+        .dropna()
+        .index.date[0]
+    )
     idx_delta = idx + dt.timedelta(days=1)
     peak_day = time_series[idx:idx_delta][:24]
 
@@ -71,9 +76,9 @@ def get_weekends(dataframe):
     """
 
     time_series = dataframe.copy()
-    weekend_mask = (
-        time_series.index.weekday == 5) | (
-        time_series.index.weekday == 6)
+    weekend_mask = (time_series.index.weekday == 5) | (
+        time_series.index.weekday == 6
+    )
     weekends = time_series[weekend_mask]
     weekend_hourly = weekends.groupby(weekends.index.hour).mean()[:24]
 
@@ -84,27 +89,33 @@ def get_season_masks(df):
     """
     Returns seasonal masks for given timeseries.
     """
-    spring_mask = ((df.index.month >= 3) & (df.index.month <= 5))
-    summer_mask = ((df.index.month >= 6) & (df.index.month <= 8))
-    fall_mask = ((df.index.month >= 9) & (df.index.month <= 11))
-    winter_mask = ((df.index.month == 12) | (df.index.month == 1) |
-                   (df.index.month == 2))
+    spring_mask = (df.index.month >= 3) & (df.index.month <= 5)
+    summer_mask = (df.index.month >= 6) & (df.index.month <= 8)
+    fall_mask = (df.index.month >= 9) & (df.index.month <= 11)
+    winter_mask = (
+        (df.index.month == 12) | (df.index.month == 1) | (df.index.month == 2)
+    )
 
-    seasons = {'spring': spring_mask,
-               'summer': summer_mask,
-               'fall': fall_mask,
-               'winter': winter_mask}
+    seasons = {
+        "spring": spring_mask,
+        "summer": summer_mask,
+        "fall": fall_mask,
+        "winter": winter_mask,
+    }
 
     return seasons
 
 
-def four_seasons_hourly(dataframe,
-                        N_seasons=4,
-                        N_hours=24,
-                        kind='demand',
-                        add_peak=False,
-                        add_weekend=False,
-                        how=None, N_segments=1):
+def four_seasons_hourly(
+    dataframe,
+    N_seasons=4,
+    N_hours=24,
+    kind="demand",
+    add_peak=False,
+    add_weekend=False,
+    how=None,
+    N_segments=1,
+):
     """
     This function calculates a seasonal trend based on the
     input data. Answers the question: what fraction of the annual
@@ -140,11 +151,9 @@ def four_seasons_hourly(dataframe,
         slices.
     """
     if isinstance(dataframe, str):
-        time_series = pd.read_csv(dataframe,
-                                  usecols=[0, 1],
-                                  index_col=['time'],
-                                  parse_dates=True,
-                                  )
+        time_series = pd.read_csv(
+            dataframe, usecols=[0, 1], index_col=["time"], parse_dates=True,
+        )
     elif isinstance(dataframe, pd.DataFrame):
         time_series = dataframe
 
@@ -155,8 +164,9 @@ def four_seasons_hourly(dataframe,
     for i, season in enumerate(list(seasons.values())):
         season_df = time_series[season]
         idx = int(N_segments * i)
-        seasonal_hourly_profile[idx] = season_df.groupby(
-            season_df.index.hour).mean().values.reshape((24,))
+        seasonal_hourly_profile[idx] = (
+            season_df.groupby(season_df.index.hour).mean().values.reshape((24,))
+        )
 
         if add_peak:
             idx += 1
@@ -169,23 +179,27 @@ def four_seasons_hourly(dataframe,
             seasonal_hourly_profile[idx] = weekend
 
     if kind.lower() == "demand":
-        seasonal_hourly_profile = (
-            seasonal_hourly_profile / (seasonal_hourly_profile.sum()))
+        seasonal_hourly_profile = seasonal_hourly_profile / (
+            seasonal_hourly_profile.sum()
+        )
     elif kind.lower() == "cf":
-        seasonal_hourly_profile = (
-            seasonal_hourly_profile / (time_series.iloc[:, 0].max()))
+        seasonal_hourly_profile = seasonal_hourly_profile / (
+            time_series.iloc[:, 0].max()
+        )
 
     return seasonal_hourly_profile
 
 
-def aggregate(dataframe,
-              N_seasons=4,
-              N_hours=24,
-              kind='demand',
-              groupby='season',
-              add_peak=False,
-              add_weekend=False,
-              how=None):
+def aggregate(
+    dataframe,
+    N_seasons=4,
+    N_hours=24,
+    kind="demand",
+    groupby="season",
+    add_peak=False,
+    add_weekend=False,
+    how=None,
+):
     """
     This function calculates a seasonal trend based on the
     input data. Answers the question: what fraction of the annual
@@ -233,11 +247,9 @@ def aggregate(dataframe,
     """
     # read in the data
     if isinstance(dataframe, str):
-        time_series = pd.read_csv(dataframe,
-                                  usecols=[0, 1],
-                                  index_col=['time'],
-                                  parse_dates=True,
-                                  )
+        time_series = pd.read_csv(
+            dataframe, usecols=[0, 1], index_col=["time"], parse_dates=True,
+        )
     elif isinstance(dataframe, pd.DataFrame):
         time_series = dataframe
 
@@ -246,43 +258,42 @@ def aggregate(dataframe,
     # how many period segments to calculate
     N_segments = 1 + int(add_peak) + int(add_weekend)
 
-    N_per_year = {'season': 4,
-                  'month': 12,
-                  'week': 52,
-                  'day': 365}
-                  
+    N_per_year = {"season": 4, "month": 12, "week": 52, "day": 365}
+
     hourly_profiles = np.zeros((N_seasons, N_hours))
 
     # group the time series
-    if groupby == 'season':
-        hourly_profiles = four_seasons_hourly(dataframe,
-                                              N_seasons=N_seasons,
-                                              N_hours=N_hours,
-                                              kind=kind,
-                                              add_peak=add_peak,
-                                              add_weekend=add_weekend,
-                                              N_segments=N_segments)
+    if groupby == "season":
+        hourly_profiles = four_seasons_hourly(
+            dataframe,
+            N_seasons=N_seasons,
+            N_hours=N_hours,
+            kind=kind,
+            add_peak=add_peak,
+            add_weekend=add_weekend,
+            N_segments=N_segments,
+        )
         return hourly_profiles
 
     # all other cases
-    elif groupby == 'month':
+    elif groupby == "month":
         grouped = time_series.groupby(time_series.index.month)
-    elif groupby == 'week':
+    elif groupby == "week":
         grouped = time_series.groupby(time_series.index.isocalendar().week)
-    elif groupby == 'day':
+    elif groupby == "day":
         grouped = time_series.groupby(time_series.index.dayofyear)
     # initialize dictionary
     for i, group in enumerate(grouped.groups):
-        if (group > 52) and (groupby == 'week'):
+        if (group > 52) and (groupby == "week"):
             continue
-        elif (group > 365) and (groupby == 'day'):
+        elif (group > 365) and (groupby == "day"):
             continue
         group_df = grouped.get_group(group)
 
         idx = int(N_segments * i)
-        hourly_profiles[idx] = group_df.groupby(
-            group_df.index.hour).mean().values.reshape(
-            (24,))
+        hourly_profiles[idx] = (
+            group_df.groupby(group_df.index.hour).mean().values.reshape((24,))
+        )
 
         if add_peak:
             idx += 1
@@ -295,19 +306,16 @@ def aggregate(dataframe,
             hourly_profiles[idx] = weekend
 
     if kind.lower() == "demand":
-        hourly_profiles = (hourly_profiles / (hourly_profiles.sum()))
+        hourly_profiles = hourly_profiles / (hourly_profiles.sum())
     elif kind.lower() == "cf":
-        hourly_profiles = (hourly_profiles / (time_series.iloc[:, 0].max()))
+        hourly_profiles = hourly_profiles / (time_series.iloc[:, 0].max())
 
     return hourly_profiles
 
 
 def create_timeslices(
-        dataframe,
-        normalize=None,
-        n_seasons=4,
-        n_hours=24,
-        how='averaging'):
+    dataframe, normalize=None, n_seasons=4, n_hours=24, how="averaging"
+):
     """
     This function calculates representative time slices based on the
     input data. Answers the question: what fraction of the annual
@@ -345,26 +353,26 @@ def create_timeslices(
     """
 
     if isinstance(dataframe, str):
-        time_series = pd.read_csv(dataframe,
-                                  usecols=[0, 1],
-                                  index_col=['time'],
-                                  parse_dates=True,
-                                  )
+        time_series = pd.read_csv(
+            dataframe, usecols=[0, 1], index_col=["time"], parse_dates=True,
+        )
     elif isinstance(dataframe, pd.DataFrame):
         time_series = dataframe
 
-    aggregation = tsam.TimeSeriesAggregation(time_series,
-                                             noTypicalPeriods=n_seasons,
-                                             hoursPerPeriod=24,
-                                             clusterMethod=how)
+    aggregation = tsam.TimeSeriesAggregation(
+        time_series,
+        noTypicalPeriods=n_seasons,
+        hoursPerPeriod=24,
+        clusterMethod=how,
+    )
 
     typPeriods = aggregation.createTypicalPeriods()
 
-    if normalize == 'demand':
+    if normalize == "demand":
         sum_val = typPeriods.iloc[:, 0].sum()
         typPeriods.iloc[:, 0] = typPeriods.iloc[:, 0] / sum_val
 
-    elif normalize == 'cf':
+    elif normalize == "cf":
         max_val = typPeriods.iloc[:, 0].max()
         typPeriods.iloc[:, 0] = typPeriods.iloc[:, 0] / max_val
 
@@ -373,7 +381,7 @@ def create_timeslices(
     return profile
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     from pygenesys.data.library import campus_stm_demand, campus_elc_demand
     from pygenesys.data.library import railsplitter_data, solarfarm_data
